@@ -1,0 +1,67 @@
+<?php
+error_reporting(0);
+include("connection.php");
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Contact Us | VDP Solutions</title>
+	<link rel="stylesheet" type="text/css" href="./css/ContactUs.css">
+</head>
+<body>
+	<div class="formBg">
+		<h1>Contact Us</h1>
+		<div class="formElements">
+			<form action="" method="POST" id="formContents">
+				<label for="namehere" id="formLabel">Name:</label>
+				<input type="text" placeholder="Enter Your Name" name="namehere" id="formInput"><br>
+				<label for="phoneno" id="formLabel">Phone No:</label>
+				<input type="text" placeholder="Enter Your Phone No" name="phoneno" id="formInputPhno"><br>
+				<label for="email" id="formLabel">Email:</label>
+				<input type="text" placeholder="Enter Your email Address" name="email" id="formInput"><br>
+				<label for="messagehere" id="formLabel">Choose a Service:</label>
+				  <select name="messagehere" id="optionInput">
+				    <option value="Development">Development</option>
+				    <option value="Mobile_Application">Mobile Application</option>
+				    <option value="Design">Design</option>
+				    <option value="Consultancy">Consultancy</option>
+				    <option value="Videos">Videos</option>
+				    <option value="Social_Media">Social Media</option>
+				  </select><br><br>
+				<input type="submit" onClick="submitMessage()" name="submit" id="formButton">
+			</form>
+		</div>
+	</div>
+
+<script type="text/javascript">
+	function submitMessage() {
+		alert("Thanks For Contacting Us!!!");
+	}
+</script>
+
+
+</body>
+</html>
+
+<?php
+if (isset($_POST['submit'])){
+	$nm=$_POST['namehere'];
+	$ph=$_POST['phoneno'];
+	$em=$_POST['email'];
+	$msg=$_POST['messagehere'];
+
+	if($nm!="" && $ph!="" && $em!="" && $msg!=""){
+		$query = "INSERT INTO CONTACT_US VALUES ('$nm','$ph','$em','$msg')";
+		$data = mysqli_query($conn,$query);
+
+	if($data) {
+		//echo "Data inserted into the database";
+		}
+	}
+	else {
+		echo "Failed to insert the data into the database";
+	}
+}
+
+?>

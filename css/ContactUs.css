@@ -1,0 +1,66 @@
+@font-face {
+	font-family: myContactUs;
+	src: url(../fonts/bebasneue-regular-webfont.woff);
+}
+
+body{
+	width: 100%;
+	background-image: url('../assets/BackCover.jpg');
+	background-size: cover;
+}
+
+.formBg {
+	margin: auto;
+	margin-top: 50px;
+	width: 500px;
+	height: 400px;
+	background-color: #0F2D49;
+	border-color: #0F2D49;
+	border-radius: 30px;
+	border-width: 5px;
+	padding: 10px 5px;
+	box-shadow: 5px 10px rgba(0, 0, 0, 0.5);
+}
+
+h1{
+	color: #CCC090;
+	font-family: myContactUs;
+	font-size: 50px;
+	text-align: center;
+	margin-top: 10px;
+	margin-bottom: 20px;
+}
+
+#formContents {
+	margin-left: 60px;
+}
+
+#formLabel {
+	color: #CCC090;
+	margin-left: 50px;
+}
+
+#formInput {
+	margin: 10px 70px;
+}
+
+#formInputPhno {
+	margin: 10px 45px;
+}
+
+#optionInput{
+	margin-top: 20px;
+	margin-left: 10px;
+	border-radius: 50px;
+	padding: 5px 10px;
+}
+
+#formButton {
+	margin: 30px 30px 20px 150px;
+	color: #CCC090;
+	background-color: #0F2D49;
+	border-color: #CCC090;
+	border-width: 3px;
+	border-radius: 30px;
+	padding: 5px 25px;
+}

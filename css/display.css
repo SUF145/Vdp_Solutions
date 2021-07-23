@@ -1,0 +1,25 @@
+@font-face {
+	font-family: myDisplayFont;
+	src: url(../fonts/shrikhand-regular-webfont.woff);
+}
+
+.displayRecords {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	flex-direction: column;
+}
+
+h1 {
+	font-family: myDisplayFont;
+	font-size: 50px;
+	text-align: center;
+}
+
+#myInput {
+	margin-bottom: 20px;
+}
+
+#tableContents {
+	text-align: center;
+}
