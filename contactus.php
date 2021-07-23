@@ -1,6 +1,7 @@
 <?php
 error_reporting(0);
 include("connection.php");
+include('path to file');
 ?>
 
 <!DOCTYPE html>
