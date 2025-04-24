@@ -1,94 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Air Quality Index</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f4f4f4;
       margin: 0;
       padding: 0;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
+      height: 100vh;
+      background-color: #f4f4f9;
+    }
+    .container {
+      width: 100%;
+      max-width: 600px;
+      padding: 20px;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
     }
     h1 {
-      margin-top: 20px;
-    }
-    #search-container {
-      margin-top: 20px;
+      text-align: center;
+      margin-bottom: 20px;
     }
     input[type="text"] {
+      width: 100%;
       padding: 10px;
-      width: 250px;
+      margin-bottom: 10px;
       border: 1px solid #ccc;
       border-radius: 5px;
+      font-size: 16px;
     }
     button {
-      padding: 10px 15px;
+      padding: 10px 20px;
       border: none;
-      background-color: #007BFF;
+      background-color: #007bff;
       color: white;
-      border-radius: 5px;
+      font-size: 16px;
       cursor: pointer;
+      border-radius: 5px;
+      width: 100%;
     }
-    #result {
-      margin-top: 30px;
-      padding: 20px;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      width: 80%;
-      max-width: 500px;
+    button:hover {
+      background-color: #0056b3;
+    }
+    .result {
+      margin-top: 20px;
       text-align: center;
     }
-    .error {
-      color: red;
+    .result p {
+      margin: 10px 0;
     }
   </style>
 </head>
 <body>
-  <h1>Air Quality Index</h1>
-  <div id="search-container">
-    <input type="text" id="locationInput" placeholder="Enter city name" />
-    <button onclick="getAirQuality()">Search</button>
+
+  <div class="container">
+    <h1>Air Quality Index</h1>
+    <input type="text" id="city" placeholder="Enter city name" />
+    <button onclick="getAirQuality()">Check AQI</button>
+
+    <div id="result" class="result"></div>
   </div>
-  <div id="result"></div>
 
   <script>
-    const API_KEY = '2216c54823059f94740880afced6a436'; // Replace with your OpenWeather API key
-
     async function getAirQuality() {
-      const location = document.getElementById('locationInput').value;
-      const resultDiv = document.getElementById('result');
-      resultDiv.innerHTML = 'Loading...';
+      const city = document.getElementById("city").value.trim();
+      if (!city) {
+        alert("Please enter a city name.");
+        return;
+      }
+
+      const apiKey = "2216c54823059f94740880afced6a436"; // Replace with your OpenWeather API key
+      const geocodeUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${apiKey}`;
 
       try {
-        // Step 1: Get latitude and longitude
-        const geoRes = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${location}&limit=1&appid=${API_KEY}`);
-        const geoData = await geoRes.json();
+        // Fetch the coordinates of the city
+        const geoResponse = await fetch(geocodeUrl);
+        const geoData = await geoResponse.json();
 
-        if (!geoData.length) {
-          resultDiv.innerHTML = '<p class="error">Location not found.</p>';
+        if (!geoData || geoData.length === 0) {
+          document.getElementById("result").innerHTML = `<p>City not found.</p>`;
           return;
         }
 
-        const { lat, lon, name, country } = geoData[0];
+        const lat = geoData[0].lat;
+        const lon = geoData[0].lon;
+        const cityName = geoData[0].name;
+        const country = geoData[0].country;
 
-        // Step 2: Get air pollution data
-        const airRes = await fetch(`https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${API_KEY}`);
-        const airData = await airRes.json();
+        // Fetch the air quality data using coordinates
+        const airUrl = `http://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${apiKey}`;
+        const airResponse = await fetch(airUrl);
+        const airData = await airResponse.json();
 
-        const { aqi, components } = airData.list[0].main ? airData.list[0] : { aqi: 0, components: {} };
+        const aqi = airData.list[0].main.aqi;
+        const components = airData.list[0].components;
         const category = ["Good", "Fair", "Moderate", "Poor", "Very Poor"];
+        const aqiCategory = category[aqi - 1] || "Unknown";
 
-        resultDiv.innerHTML = `
-          <h3>Air Quality in ${name}, ${country}</h3>
-          <p><strong>AQI:</strong> ${aqi} (${category[aqi - 1] || 'Unknown'})</p>
+        // Display the results
+        document.getElementById("result").innerHTML = `
+          <h3>Air Quality in ${cityName}, ${country}</h3>
+          <p><strong>AQI:</strong> ${aqi} (${aqiCategory})</p>
           <p><strong>Pollutants:</strong></p>
           <p>PM2.5: ${components.pm2_5 || '-'} µg/m³</p>
           <p>PM10: ${components.pm10 || '-'} µg/m³</p>
@@ -98,9 +116,11 @@
           <p>O₃: ${components.o3 || '-'} µg/m³</p>
         `;
       } catch (error) {
-        resultDiv.innerHTML = '<p class="error">Failed to fetch data. Please try again later.</p>';
+        console.error("Error fetching data:", error);
+        document.getElementById("result").innerHTML = `<p>Failed to retrieve data. Please try again later.</p>`;
       }
     }
   </script>
+
 </body>
 </html>
