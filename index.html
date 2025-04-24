@@ -4,56 +4,95 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Air Quality Index</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
   <style>
+    /* Global Styles */
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Roboto', sans-serif;
       margin: 0;
       padding: 0;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      background-color: #f4f4f9;
+      background-color: #f0f4f8;
     }
     .container {
       width: 100%;
       max-width: 600px;
-      padding: 20px;
-      background-color: #fff;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      border-radius: 10px;
+      padding: 30px;
+      background-color: #ffffff;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 15px;
+      text-align: center;
     }
     h1 {
-      text-align: center;
       margin-bottom: 20px;
+      font-size: 2rem;
+      color: #333;
     }
     input[type="text"] {
       width: 100%;
-      padding: 10px;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 16px;
+      padding: 15px;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+    input[type="text"]:focus {
+      border-color: #007bff;
+      outline: none;
     }
     button {
-      padding: 10px 20px;
-      border: none;
+      width: 100%;
+      padding: 15px;
       background-color: #007bff;
       color: white;
-      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.2rem;
       cursor: pointer;
-      border-radius: 5px;
-      width: 100%;
+      transition: background-color 0.3s ease;
     }
     button:hover {
       background-color: #0056b3;
     }
     .result {
       margin-top: 20px;
-      text-align: center;
+      display: none;
+      text-align: left;
+      font-size: 1rem;
+    }
+    .loading {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      color: #007bff;
+      font-weight: 500;
+    }
+    .error {
+      margin-top: 20px;
+      color: red;
+      font-weight: bold;
     }
     .result p {
       margin: 10px 0;
+      font-size: 1rem;
+    }
+    .aqi-good {
+      color: green;
+    }
+    .aqi-moderate {
+      color: orange;
+    }
+    .aqi-unhealthy {
+      color: red;
+    }
+    .aqi-very-poor {
+      color: darkred;
+    }
+    .aqi-unknown {
+      color: gray;
     }
   </style>
 </head>
@@ -64,18 +103,30 @@
     <input type="text" id="city" placeholder="Enter city name" />
     <button onclick="getAirQuality()">Check AQI</button>
 
+    <div id="loading" class="loading" style="display: none;">Fetching data, please wait...</div>
     <div id="result" class="result"></div>
+    <div id="error" class="error"></div>
   </div>
 
   <script>
     async function getAirQuality() {
       const city = document.getElementById("city").value.trim();
+      const loadingIndicator = document.getElementById("loading");
+      const resultDiv = document.getElementById("result");
+      const errorDiv = document.getElementById("error");
+
+      resultDiv.style.display = 'none';
+      errorDiv.style.display = 'none';
+      loadingIndicator.style.display = 'block';
+
       if (!city) {
-        alert("Please enter a city name.");
+        errorDiv.innerHTML = "Please enter a city name.";
+        errorDiv.style.display = 'block';
+        loadingIndicator.style.display = 'none';
         return;
       }
 
-      const apiKey = "2216c54823059f94740880afced6a436"; // Replace with your OpenWeather API key
+      const apiKey = "YOUR_API_KEY_HERE"; // Replace with your OpenWeather API key
       const geocodeUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${apiKey}`;
 
       try {
@@ -84,7 +135,9 @@
         const geoData = await geoResponse.json();
 
         if (!geoData || geoData.length === 0) {
-          document.getElementById("result").innerHTML = `<p>City not found.</p>`;
+          errorDiv.innerHTML = "City not found. Please try again.";
+          errorDiv.style.display = 'block';
+          loadingIndicator.style.display = 'none';
           return;
         }
 
@@ -103,10 +156,17 @@
         const category = ["Good", "Fair", "Moderate", "Poor", "Very Poor"];
         const aqiCategory = category[aqi - 1] || "Unknown";
 
+        // Set color based on AQI category
+        let aqiClass = "aqi-unknown";
+        if (aqi === 1) aqiClass = "aqi-good";
+        if (aqi === 2) aqiClass = "aqi-moderate";
+        if (aqi === 3) aqiClass = "aqi-unhealthy";
+        if (aqi === 4) aqiClass = "aqi-very-poor";
+
         // Display the results
-        document.getElementById("result").innerHTML = `
+        resultDiv.innerHTML = `
           <h3>Air Quality in ${cityName}, ${country}</h3>
-          <p><strong>AQI:</strong> ${aqi} (${aqiCategory})</p>
+          <p class="${aqiClass}"><strong>AQI:</strong> ${aqi} (${aqiCategory})</p>
           <p><strong>Pollutants:</strong></p>
           <p>PM2.5: ${components.pm2_5 || '-'} µg/m³</p>
           <p>PM10: ${components.pm10 || '-'} µg/m³</p>
@@ -115,9 +175,13 @@
           <p>SO₂: ${components.so2 || '-'} µg/m³</p>
           <p>O₃: ${components.o3 || '-'} µg/m³</p>
         `;
+        resultDiv.style.display = 'block';
       } catch (error) {
         console.error("Error fetching data:", error);
-        document.getElementById("result").innerHTML = `<p>Failed to retrieve data. Please try again later.</p>`;
+        errorDiv.innerHTML = "Failed to retrieve data. Please try again later.";
+        errorDiv.style.display = 'block';
+      } finally {
+        loadingIndicator.style.display = 'none';
       }
     }
   </script>
