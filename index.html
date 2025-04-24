@@ -16,12 +16,15 @@
       align-items: center;
       height: 100vh;
       background-color: #f0f4f8;
+      background-image: url('https://www.niehs.nih.gov/sites/default/files/2024/07/air_pollution.jpg'); /* Add a background image */
+      background-size: cover;
+      background-position: center;
     }
     .container {
       width: 100%;
       max-width: 600px;
       padding: 30px;
-      background-color: #ffffff;
+      background-color: rgba(255, 255, 255, 0.8); /* Transparent white background */
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       border-radius: 15px;
       text-align: center;
@@ -94,6 +97,19 @@
     .aqi-unknown {
       color: gray;
     }
+    /* Image styles */
+    .aqi-icon {
+      width: 50px;
+      height: 50px;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+    .aqi-category {
+      display: flex;
+      align-items: center;
+      margin-top: 10px;
+      font-size: 1.2rem;
+    }
   </style>
 </head>
 <body>
@@ -156,17 +172,33 @@
         const category = ["Good", "Fair", "Moderate", "Poor", "Very Poor"];
         const aqiCategory = category[aqi - 1] || "Unknown";
 
-        // Set color based on AQI category
+        // Set color and icon based on AQI category
         let aqiClass = "aqi-unknown";
-        if (aqi === 1) aqiClass = "aqi-good";
-        if (aqi === 2) aqiClass = "aqi-moderate";
-        if (aqi === 3) aqiClass = "aqi-unhealthy";
-        if (aqi === 4) aqiClass = "aqi-very-poor";
+        let aqiIcon = "https://www.example.com/unknown.png"; // Placeholder icon
+        if (aqi === 1) {
+          aqiClass = "aqi-good";
+          aqiIcon = "https://www.example.com/good.png"; // Good AQI icon
+        }
+        if (aqi === 2) {
+          aqiClass = "aqi-moderate";
+          aqiIcon = "https://www.example.com/moderate.png"; // Moderate AQI icon
+        }
+        if (aqi === 3) {
+          aqiClass = "aqi-unhealthy";
+          aqiIcon = "https://www.example.com/unhealthy.png"; // Unhealthy AQI icon
+        }
+        if (aqi === 4) {
+          aqiClass = "aqi-very-poor";
+          aqiIcon = "https://www.example.com/very-poor.png"; // Very Poor AQI icon
+        }
 
-        // Display the results
+        // Display the results with an image for AQI category
         resultDiv.innerHTML = `
           <h3>Air Quality in ${cityName}, ${country}</h3>
-          <p class="${aqiClass}"><strong>AQI:</strong> ${aqi} (${aqiCategory})</p>
+          <div class="aqi-category">
+            <img src="${aqiIcon}" alt="${aqiCategory} Icon" class="aqi-icon"/>
+            <p class="${aqiClass}"><strong>AQI:</strong> ${aqi} (${aqiCategory})</p>
+          </div>
           <p><strong>Pollutants:</strong></p>
           <p>PM2.5: ${components.pm2_5 || '-'} µg/m³</p>
           <p>PM10: ${components.pm10 || '-'} µg/m³</p>
